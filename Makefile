@@ -1,6 +1,6 @@
 ## Provide your own options or compiler here.
 #CFLAGS += -O3 -ipo -axP -xW -funroll-loops -g
-CFLAGS += -g
+CFLAGS += -g -lm
 CC = gcc
 #CC = icc
 
