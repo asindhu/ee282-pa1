@@ -20,6 +20,8 @@ void matmul (int i_matdim, const double* pd_A, const double* pd_B, double* pd_C)
 
 // For simplicity, test sizes are restricted to be power of 2.
 int test_sizes[] = { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}; 
+//int test_sizes[] = { 128 }; 
+
 
 #ifdef PAPI
 // You may replace these events with others of your choice. Refer to the PAPI documentation.
