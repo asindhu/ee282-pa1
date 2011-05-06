@@ -19,8 +19,8 @@
 void matmul (int i_matdim, const double* pd_A, const double* pd_B, double* pd_C);
 
 // For simplicity, test sizes are restricted to be power of 2.
-int test_sizes[] = { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}; 
-//int test_sizes[] = { 128 }; 
+//int test_sizes[] = { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}; 
+int test_sizes[] = { 4 }; 
 
 
 #ifdef PAPI
@@ -48,7 +48,7 @@ void naive_matmul(int n, const double *A, const double *B, double *C) {
 
   for (i = 0; i < n; i++)
     for (j = 0; j < n; j++)
-      for (k = 0; k < n; k++) 
+      for (k = 0; k < n; k++)
         C[i*n + j] += A[i*n+k]*B[k*n+j];
 }
 
