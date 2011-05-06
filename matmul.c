@@ -54,19 +54,6 @@ void matmul (int N, const double* A, const double* B, double* C) {
 	
 	*/
 	
-	/* One-level blocking variables */
-	int kmax, jmax, kk, jj;
-	int bsize = 32;
-	if (N <= bsize) bsize = N/2;
-	
-	/* Two-level blocking variables */
-	int bj_s, bj_l, bk_s, bk_l, bi_l;
-	int kmax_s, kmax_l, jmax_s, jmax_l, imax_l;
-	int bsize_l = 256;			// Large block size (L2 cache)
-	if (N <= bsize_l) bsize_l = N/4;
-	int bsize_s = 16;				// Small block size (L1 cache)
-	if (N <= bsize) bsize = N/8;
-	
 	if (N == 2) {		
 		C[0] += (A[0] * B[0] + A[1] * B[2]);
 		C[1] += (A[0] * B[1] + A[1] * B[3]);
@@ -113,6 +100,19 @@ void matmul (int N, const double* A, const double* B, double* C) {
 	
 	else {
 		
+	/* One-level blocking variables */
+	int kmax, jmax, kk, jj;
+	int bsize = 32;
+	if (N <= bsize) bsize = N/2;
+	
+	/* Two-level blocking variables */
+	int bj_s, bj_l, bk_s, bk_l, bi_l;
+	int kmax_s, kmax_l, jmax_s, jmax_l, imax_l;
+	int bsize_l = 256;			// Large block size (L2 cache)
+	if (N <= bsize_l) bsize_l = N/4;
+	int bsize_s = 16;				// Small block size (L1 cache)
+	if (N <= bsize) bsize = N/8;
+	
 		/* I-K-J blocking */
 		
 		double result;
