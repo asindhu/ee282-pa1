@@ -415,8 +415,6 @@ void matmul (int N, const double* __restrict__ A, const double* __restrict__ B, 
 		for (i = 0; i < N; i++) {
 	    for (j = 0; j < N; j++) {	
 				for (k = 0; k < N; k++) {
-					//__builtin_prefetch (&A[i*N + k + 8], 0, 1);
-					//__builtin_prefetch (&B[(k+4)*N + j], 0, 1);
 	        C[i*N + j] += A[i*N+k]*B[k*N+j];
 				}
 			}
@@ -425,25 +423,25 @@ void matmul (int N, const double* __restrict__ A, const double* __restrict__ B, 
 	
 	else {
 		
-	/* One-level blocking variables */
-	int kmax, jmax, kk, jj;
-	int bsize = 32;
-	if (N <= bsize) bsize = N/2;
+		/* One-level blocking variables */
+		int kmax, jmax, kk, jj;
+		int bsize = 32;
+		if (N <= bsize) bsize = N/2;
 	
-	/* Two-level blocking variables */
-	int bj_s, bj_l, bk_s, bk_l, bi_l;
-	int kmax_s, kmax_l, jmax_s, jmax_l, imax_l;
-	int bsize_l = 256;			// Large block size (L2 cache)
-	if (N <= bsize_l) bsize_l = N/4;
-	int bsize_s = 16;				// Small block size (L1 cache)
-	if (N <= bsize) bsize = N/8;
+		/* Two-level blocking variables */
+		int bj_s, bj_l, bk_s, bk_l, bi_l;
+		int kmax_s, kmax_l, jmax_s, jmax_l, imax_l;
+		int bsize_l = 256;			// Large block size (L2 cache)
+		if (N <= bsize_l) bsize_l = N/4;
+		int bsize_s = 16;				// Small block size (L1 cache)
+		if (N <= bsize) bsize = N/8;
 	
 		/* I-K-J blocking */
 		
 		double result;
 		
-		__m128d a, b1, b2, c1, c2;
-		__m128d mulres1, mulres2, addres1, addres2;
+		__m128d a, b1, b2, b3, b4, c1, c2, c3, c4;
+		__m128d mulres1, mulres2, mulres3, mulres4, addres1, addres2, addres3, addres4;
 		
 			for (kk = 0; kk < N; kk += bsize) {
 				kmax = kk + bsize;
@@ -462,22 +460,34 @@ void matmul (int N, const double* __restrict__ A, const double* __restrict__ B, 
 							
 							a = _mm_set_pd(A[i*N + k], A[i*N + k]);
 							
-							for (j = jj; j < jmax; j += 4) {
+							for (j = jj; j < jmax; j += 8) {
 								
 								b1 = _mm_set_pd(B[k*N + j], B[k*N + j + 1]);
 								b2 = _mm_set_pd(B[k*N + j + 2], B[k*N + j + 3]);
+								b3 = _mm_set_pd(B[k*N + j + 4], B[k*N + j + 5]);
+								b4 = _mm_set_pd(B[k*N + j + 6], B[k*N + j + 7]);
 								c1 = _mm_set_pd(C[i*N + j], C[i*N + j + 1]);
 								c2 = _mm_set_pd(C[i*N + j + 2], C[i*N + j + 3]);
+								c3 = _mm_set_pd(C[i*N + j + 4], C[i*N + j + 5]);
+								c4 = _mm_set_pd(C[i*N + j + 6], C[i*N + j + 7]);
 								
 								mulres1 = _mm_mul_pd(a, b1);
 								addres1 = _mm_add_pd(c1, mulres1);
 								mulres2 = _mm_mul_pd(a, b2);
 								addres2 = _mm_add_pd(c2, mulres2);
+								mulres3 = _mm_mul_pd(a, b3);
+								addres3 = _mm_add_pd(c3, mulres3);
+								mulres4 = _mm_mul_pd(a, b4);
+								addres4 = _mm_add_pd(c4, mulres4);
 								
 								_mm_storeh_pd(&C[i*N + j], addres1);
 								_mm_storel_pd(&C[i*N + j + 1], addres1);
 								_mm_storeh_pd(&C[i*N + j + 2], addres2);
 								_mm_storel_pd(&C[i*N + j + 3], addres2);
+								_mm_storeh_pd(&C[i*N + j + 4], addres3);
+								_mm_storel_pd(&C[i*N + j + 5], addres3);
+								_mm_storeh_pd(&C[i*N + j + 6], addres4);
+								_mm_storel_pd(&C[i*N + j + 7], addres4);
 								
 							}
 						}
@@ -486,7 +496,7 @@ void matmul (int N, const double* __restrict__ A, const double* __restrict__ B, 
 							for (j = jj; j < jmax; j++) {
 								C[i*N + j] += A[i*N + k] * B[k*N + j];
 							}
-						} */
+						}*/
 					}
 				}
 			}
